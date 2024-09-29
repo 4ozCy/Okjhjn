@@ -1,38 +1,47 @@
-from flask import Flask, request, jsonify
-import requests
-import json
+const express = require('express');
+const axios = require('axios');
+const path = require('path');
 
-app = Flask(__name__)
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-WEBHOOK_URL = 'https://discord.com/api/webhooks/1289835342295466047/136Wnyym62qc4GjkK4N0PzVbfLhpUu3Rghzj_q-hiEEzFy80suSYNtxl7Kuqc8Xm5Wk5'
+const WEBHOOK_URL = 'https://discord.com/api/webhooks/1289835342295466047/136Wnyym62qc4GjkK4N0PzVbfLhpUu3Rghzj_q-hiEEzFy80suSYNtxl7Kuqc8Xm5Wk5';
 
-@app.route('/')
-def index():
-    return app.send_static_file('index.html')
+app.use(express.json());
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-@app.route('/send', methods=['POST'])
-def send_music_id():
-    data = request.get_json()
-    song_name = data.get('songName')
-    music_id = data.get('musicId')
-    
-    # Prepare the embed message
-    embed = {
-        "embeds": [{
-            "title": f"Song: {song_name}",
-            "description": f"ID: {music_id}",
-            "footer": {
-                "text": "Powered by: @nozcy.int & @.skippyberenz."
+app.post('/send', async (req, res) => {
+    const { songName, musicId } = req.body;
+
+    const embed = {
+        embeds: [{
+            title: `Song: ${songName}`,
+            description: `ID: ${musicId}`,
+            footer: {
+                text: "Powered by: @nozcy.int & @.skippyberenz."
             }
         }]
+    };
+
+    try {
+        const response = await axios.post(WEBHOOK_URL, embed, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 204) {
+            return res.status(200).json({ message: "Music ID sent successfully!" });
+        } else {
+            return res.status(500).json({ message: "Failed to send music ID." });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Failed to send music ID." });
     }
+});
 
-    response = requests.post(WEBHOOK_URL, data=json.dumps(embed), headers={'Content-Type': 'application/json'})
-
-    if response.status_code == 204:
-        return jsonify({"message": "Music ID sent successfully!"}), 200
-    else:
-        return jsonify({"message": "Failed to send music ID."}), 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
