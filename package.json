@@ -1,0 +1,26 @@
+{
+  "name": "music-id-sender",
+  "version": "1.0.0",
+  "description": "A simple Node.js app to send music IDs to a Discord webhook.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "keywords": [
+    "discord",
+    "webhook",
+    "music",
+    "node",
+    "express"
+  ],
+  "author": "4ozCy",
+  "license": "ISC"
+}
